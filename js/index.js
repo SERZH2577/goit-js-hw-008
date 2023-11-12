@@ -64,15 +64,52 @@ const images = [
   },
 ];
 
-const template = `
-  <li class="gallery-item">
-    <a class="gallery-link" href="large-image.jpg">
-  	  <img
-  		  class="gallery-image"
-  		  src="small-image.jpg"
-  		  data-source="large-image.jpg"
-  		  alt="Image description"
-  	  />
-    </a>
-  </li>
-`;
+const galleryItemsRow = images
+  .map(
+    ({ preview, description, original }) => `
+<li class="gallery-item">
+  <a class="gallery-link" href="${original}">
+    <img
+      class="gallery-image scale"
+      src="${preview}"
+      data-source="${original}"
+      alt="${description}"
+    />
+  </a>
+</li>
+`,
+  )
+  .join('');
+
+const galleryEl = document.querySelector('.gallery');
+galleryEl.insertAdjacentHTML('beforeend', galleryItemsRow);
+galleryEl.addEventListener('click', onOpensImageInModalWindow);
+
+function onOpensImageInModalWindow(e) {
+  e.preventDefault();
+  if (e.target.nodeName !== 'IMG') {
+    return;
+  }
+
+  const instance = basicLightbox.create(
+    `
+      <img src="${e.target.dataset.source}" width="800" height="600">
+  `,
+  );
+
+  instance.show();
+
+  galleryEl.addEventListener('keydown', onClosesModalWindowUsingEscape);
+
+  function onClosesModalWindowUsingEscape(e) {
+    if (!basicLightbox.visible()) {
+      return;
+    }
+
+    if (e.code !== 'Escape') {
+      return;
+    }
+
+    instance.close();
+  }
+}
