@@ -93,23 +93,26 @@ function onOpensImageInModalWindow(e) {
 
   const instance = basicLightbox.create(
     `
-      <img src="${e.target.dataset.source}" width="800" height="600">
-  `,
+  <img src="${e.target.dataset.source}" width="800" height="600">
+`,
+    {
+      onShow: () =>
+        galleryEl.addEventListener('keydown', onClosesModalWindowUsingEscape),
+      onClose: () =>
+        galleryEl.removeEventListener(
+          'keydown',
+          onClosesModalWindowUsingEscape,
+          false,
+        ),
+    },
   );
 
   instance.show();
 
-  galleryEl.addEventListener('keydown', onClosesModalWindowUsingEscape);
-
   function onClosesModalWindowUsingEscape(e) {
-    if (!basicLightbox.visible()) {
-      return;
-    }
-
     if (e.code !== 'Escape') {
       return;
     }
-
     instance.close();
   }
 }
